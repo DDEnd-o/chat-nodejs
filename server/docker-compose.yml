@@ -1,0 +1,27 @@
+# Tên project cố định (không phụ thuộc tên thư mục "server") để container, network,
+# volume luôn có tiền tố "dtdd-chat-", không lẫn với MySQL của các đồ án khác trên máy.
+name: dtdd-chat
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dtdd-chat-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: chat_app
+      MYSQL_USER: chat_app
+      MYSQL_PASSWORD: chat_app_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - dtdd-chat-mysql-data:/var/lib/mysql
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  dtdd-chat-mysql-data:
